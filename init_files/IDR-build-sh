@@ -1,0 +1,75 @@
+#!/bin/bash
+
+## 更新 yum 源
+sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+    -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.bfsu.edu.cn|g' \
+    -i /etc/yum.repos.d/CentOS-*.repo
+yum makecache
+yum install epel-release -y
+sed -e 's!^metalink=!#metalink=!g' \
+    -e 's!^#baseurl=!baseurl=!g' \
+    -e 's!//download\.fedoraproject\.org/pub!//mirrors.bfsu.edu.cn!g' \
+    -e 's!//download\.example/pub!//mirrors.bfsu.edu.cn!g' \
+    -e 's!http://mirrors!https://mirrors!g' \
+    -i /etc/yum.repos.d/epel*.repo
+yum makecache fast
+
+## 基础组件
+yum install -y libaio expect unzip python-pip wget crontabs zip sudo
+
+## 配置 pip 源
+mkdir -p ~/.pip
+sudo tee -a ~/.pip/pip.conf << EOF
+[global]
+index-url = http://mirrors.aliyun.com/pypi/simple/
+
+[install]
+trusted-host=mirrors.aliyun.com
+EOF
+
+## 配置时区
+/bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+## SSH
+yum install -y openssh-server openssh-clients
+
+## MySQL Client
+yum install -y MySQL-python
+mkdir -p /op-tools/mysql_init
+cd /op-tools/mysql_init
+wget https://repo.mysql.com/yum/mysql-8.0-community/el/7/x86_64/mysql-community-client-8.0.34-1.el7.x86_64.rpm
+wget https://repo.mysql.com/yum/mysql-8.0-community/el/7/x86_64/mysql-community-client-plugins-8.0.34-1.el7.x86_64.rpm
+wget https://repo.mysql.com/yum/mysql-8.0-community/el/7/x86_64/mysql-community-common-8.0.34-1.el7.x86_64.rpm
+wget https://repo.mysql.com/yum/mysql-8.0-community/el/7/x86_64/mysql-community-libs-8.0.34-1.el7.x86_64.rpm
+wget https://repo.mysql.com/yum/mysql-8.0-community/el/7/x86_64/mysql-community-libs-compat-8.0.34-1.el7.x86_64.rpm
+yum install -y ./*.rpm
+cd ..
+rm -fr /op-tools/mysql_init
+
+## Oracle Client
+pip install cx_Oracle==7.3
+cd /op-tools
+yum install -y oracle-instantclient12.2-basic-12.2.0.1.0-1.x86_64.rpm
+rm -f ./*.rpm
+sh -c "echo /usr/lib/oracle/12.2/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf"
+ldconfig
+chmod -R a+x /op-tools/instantclient_12_2/*
+
+## MongoDB Client
+pip install pymongo
+cd /op-tools
+wget https://mirrors.aliyun.com/mongodb/yum/redhat/7/mongodb-org/5.0/x86_64/RPMS/mongodb-org-tools-5.0.13-1.el7.x86_64.rpm
+wget https://mirrors.aliyun.com/mongodb/yum/redhat/7/mongodb-org/5.0/x86_64/RPMS/mongodb-database-tools-100.6.1.x86_64.rpm
+wget https://mirrors.aliyun.com/mongodb/yum/redhat/7/mongodb-org/5.0/x86_64/RPMS/mongodb-org-database-tools-extra-5.0.9-1.el7.x86_64.rpm
+yum install -y ./*.rpm
+rm -f ./*.rpm
+
+
+
+mkdir -p /mnt
+chmod a+x /op-tools/keep
+chmod a+x /op-tools/start.sh
+chmod a+x /op-tools/bk_mysql.sh
+chmod a+x /op-tools/bk_mongo.sh
+yum clean all
+rm -rf /var/cache/yum

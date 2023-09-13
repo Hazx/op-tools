@@ -1,0 +1,76 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: optools-pvc
+  namespace: default
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: optools
+  namespace: default
+  labels:
+    k8s-app: optools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: optools
+  template:
+    metadata:
+      labels:
+        k8s-app: optools
+    spec:
+      volumes:
+      - name: pvc
+        persistentVolumeClaim:
+          claimName: optools-pvc
+      containers:
+      - name: optools-1
+        image: hazx/optools:1.0
+        env:
+        - name: RUN_KEEP
+          value: 'true'
+        resources: 
+          requests:
+            cpu: 50m
+            memory: 32Mi
+          limits:
+            cpu: 2
+            memory: 1Gi
+        volumeMounts:
+        - name: pvc
+          mountPath: "/mnt"
+          subPath: optools-1
+        imagePullPolicy: IfNotPresent
+      # - name: optools-2
+      #   image: hazx/optools:1.0
+      #   env:
+      #   - name: RUN_KEEP
+      #     value: 'true'
+      #   resources: 
+      #     requests:
+      #       cpu: 50m
+      #       memory: 32Mi
+      #     limits:
+      #       cpu: 2
+      #       memory: 1Gi
+      #   volumeMounts:
+      #   - name: pvc
+      #     mountPath: "/mnt"
+      #     subPath: optools-2
+      #   imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
