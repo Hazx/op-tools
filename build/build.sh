@@ -2,7 +2,7 @@
 
 docker_path=hazx
 docker_img=optools
-docker_tag=2.1
+docker_tag=2.2
 docker_base=ubuntu:jammy-20240911.1
 web_svc_img=hazx/hmengine-fe:1.7
 
@@ -42,6 +42,7 @@ COPY IDR-bk-mysql-sh /op-tools/bk_mysql.sh
 COPY IDR-build-sh /op-tools/build.sh
 COPY IDR-start-sh /op-tools/start.sh
 COPY IDR-env /op-tools/env
+COPY crontab-list /op-tools/crontab-list
 RUN chmod +x /op-tools/*.sh ;\
     . /op-tools/env ;\
     /op-tools/build.sh ;\

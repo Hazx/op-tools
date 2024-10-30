@@ -39,6 +39,8 @@ echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 ## 初始化定时任务配置文件
 mkdir -p /var/spool/cron/crontabs
 touch /var/spool/cron/crontabs/root
+chmod 600 /var/spool/cron/crontabs/root
+chown root:crontab /var/spool/cron/crontabs/root
 
 ## 启用 SSH 服务
 RUN_SSH_R=${RUN_SSH:-false}
@@ -67,6 +69,7 @@ fi
 RUN_CROND_R=${RUN_CROND:-false}
 if [[ $RUN_CROND_R == true ]];then
     cat /op-tools/crontab-list | grep -E -v "^#" >> /var/spool/cron/crontabs/root
+    sleep 1
     /usr/sbin/cron
     RUN_KEEP=true
 fi
