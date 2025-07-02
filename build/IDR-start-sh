@@ -54,7 +54,7 @@ if [[ $1 == "bkmysql" ]];then
 bash /op-tools/bk_mysql.sh
 fi
 if [[ ${BK_CROND_MODE} == "mysql" ]] && [[ ${BK_CROND_TIME} ]];then
-    echo -e "\n${BK_CROND_TIME} /op-tools/bk_mysql.sh\n" >> /var/spool/cron/crontabs/root
+    echo -e "\n${BK_CROND_TIME} /op-tools/bk_mysql.sh > /dev/stdout 2> /dev/stderr\n" >> /var/spool/cron/crontabs/root
 fi
 
 ## MongoDB 备份
@@ -62,7 +62,7 @@ if [[ $1 == "bkmongo" ]];then
 bash /op-tools/bk_mongo.sh
 fi
 if [[ ${BK_CROND_MODE} == "mongo" ]] && [[ ${BK_CROND_TIME} ]];then
-    echo -e "\n${BK_CROND_TIME} /op-tools/bk_mongo.sh\n" >> /var/spool/cron/crontabs/root
+    echo -e "\n${BK_CROND_TIME} /op-tools/bk_mongo.sh > /dev/stdout 2> /dev/stderr\n" >> /var/spool/cron/crontabs/root
 fi
 
 ## 启用 crontab 定时任务
@@ -77,5 +77,5 @@ fi
 ## 容器保活
 RUN_KEEP_R=${RUN_KEEP:-false}
 if [[ $RUN_KEEP_R == true ]];then
-    ping 127.0.0.1 > /dev/null 2>&1
+    tail -f /dev/null
 fi

@@ -15,8 +15,8 @@
 - APT 源：北京外国语大学开源软件镜像站
 - 默认 ROOT 密码：wpuU2gurjYFLyBq
 - 默认时区：Asia/Shanghai
-- MySQL 工具版本：8.0.39
-- Mongo 工具版本：6.0.12
+- MySQL 工具版本：8.0.42
+- Mongo 工具版本：6.0.24
 
 
 ## 可配置变量
@@ -37,6 +37,7 @@
 - `MONGO_DB`：MongoDB 库名（填 `_ALL_` 则为所有库）
 - `MONGO_AUTHDB`：MongoDB 认证库名（默认 `admin`）
 - `BK_RETAIN`：备份保留个数（默认 `14`）
+- `BK_DIR`：备份目录（默认 `/mnt`）
 - `BK_CROND_MODE`：备份计划任务类型（`mysql` / `mongo`）
 - `BK_CROND_TIME`：备份计划任务定时配置（同 crontab 的时间部分写法）
 
@@ -92,7 +93,7 @@ Linux Crontab 定时任务。
 
 ## 打包镜像
 
-您可以直接使用已经打包好的镜像 `hazx/optools:2.1`（ARM64平台请使用镜像 `hazx/optools:2.1-arm`），若您有特殊需求也可在修改之后重新执行打包：
+您可以直接使用已经打包好的镜像 `hazx/optools:2.3`（ARM64平台请使用镜像 `hazx/optools:2.3-arm`），若您有特殊需求也可在修改之后重新执行打包：
 
 ```
 bash build.sh

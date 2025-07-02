@@ -9,38 +9,49 @@ MONGO_PW_R=${MONGO_PW:-root}
 MONGO_DB_R=${MONGO_DB:=_ALL_}
 MONGO_AUTHDB_R=${MONGO_AUTHDB:=admin}
 MONGO_BK_RETAIN_R=${BK_RETAIN:-14}
+MONGO_BK_DIR_R=${BK_DIR:-/mnt}
 
+
+## 唯一时间tag（保存用）
+date_tag=$(date +%Y%m%d-%H%M)
+echo "[$(date +%Y%m%d-%H%M%S)] 准备开始备份任务..."
+echo "[$(date +%Y%m%d-%H%M%S)] 备份date_tag=${date_tag}"
 
 ## 备份 MongoDB 数据库
-date_tag=$(date +%Y%m%d-%H%M)
 if [[ $MONGO_DB_R == "_ALL_" ]];then
-    mkdir -p /mnt/mongo__all__${date_tag}
-    mongodump -h ${MONGO_ADDR_R} --port ${MONGO_PORT_R} -u ${MONGO_USER_R} -p=${MONGO_PW_R} --authenticationDatabase ${MONGO_AUTHDB_R} -o /mnt/mongo__all__${date_tag}
+    echo "[$(date +%Y%m%d-%H%M%S)] 正在备份全库..."
+    mkdir -p ${MONGO_BK_DIR_R}/mongo__all__${date_tag}
+    mongodump -h ${MONGO_ADDR_R} --port ${MONGO_PORT_R} -u ${MONGO_USER_R} -p=${MONGO_PW_R} --authenticationDatabase ${MONGO_AUTHDB_R} -o ${MONGO_BK_DIR_R}/mongo__all__${date_tag}
 else
-    mkdir -p /mnt/mongo_${MONGO_DB_R}_${date_tag}
-    mongodump -h ${MONGO_ADDR_R} --port ${MONGO_PORT_R} -u ${MONGO_USER_R} -p=${MONGO_PW_R} -d ${MONGO_DB_R} --authenticationDatabase ${MONGO_AUTHDB_R} -o /mnt/mongo_${MONGO_DB_R}_${date_tag}
+    echo "[$(date +%Y%m%d-%H%M%S)] 正在备份库 ${MONGO_DB_R} ..."
+    mkdir -p ${MONGO_BK_DIR_R}/mongo_${MONGO_DB_R}_${date_tag}
+    mongodump -h ${MONGO_ADDR_R} --port ${MONGO_PORT_R} -u ${MONGO_USER_R} -p=${MONGO_PW_R} -d ${MONGO_DB_R} --authenticationDatabase ${MONGO_AUTHDB_R} -o ${MONGO_BK_DIR_R}/mongo_${MONGO_DB_R}_${date_tag}
 fi
 
 ## 打包压缩
-cd /mnt
+echo "[$(date +%Y%m%d-%H%M%S)] 正在压缩备份..."
+cd ${MONGO_BK_DIR_R}
 ls -d -1 mongo_* | grep -v .zip | xargs -I {} zip -r {}.zip {}
 ls -d -1 mongo_* | grep -v .zip | xargs -I {} rm -fr {}
 
 ## 清理过时的备份数据
-cd /mnt
+cd ${MONGO_BK_DIR_R}
 if [[ $MONGO_DB_R == "_ALL_" ]];then
     bk_num=$(ls -Art mongo__all__*.zip | wc -l)
 else
     bk_num=$(ls -Art mongo_${MONGO_DB_R}_*.zip | wc -l)
 fi
 if [[ $bk_num -gt ${MONGO_BK_RETAIN_R} ]];then
+    echo "[$(date +%Y%m%d-%H%M%S)] 正在清理历史备份..."
     if [[ $MONGO_DB_R == "_ALL_" ]];then
-        find /mnt/ -name "mongo__all__*.zip" | sort -r | sed -e 1,${MONGO_BK_RETAIN_R}d | xargs -I {} rm -f {}
+        find ${MONGO_BK_DIR_R}/ -name "mongo__all__*.zip" | sort -r | sed -e 1,${MONGO_BK_RETAIN_R}d | xargs -I {} rm -f {}
     else
-        find /mnt/ -name "mongo_${MONGO_DB_R}_*.zip" | sort -r | sed -e 1,${MONGO_BK_RETAIN_R}d | xargs -I {} rm -f {}
+        find ${MONGO_BK_DIR_R}/ -name "mongo_${MONGO_DB_R}_*.zip" | sort -r | sed -e 1,${MONGO_BK_RETAIN_R}d | xargs -I {} rm -f {}
     fi
 fi
 
+echo "[$(date +%Y%m%d-%H%M%S)] 备份完成"
+echo ""
 
 
 

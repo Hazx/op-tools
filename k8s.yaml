@@ -36,7 +36,7 @@ spec:
           claimName: optools-pvc
       containers:
       - name: optools-1
-        image: hazx/optools:2.1
+        image: hazx/optools:2.3
         env:
         - name: RUN_KEEP
           value: 'true'
@@ -53,7 +53,7 @@ spec:
           subPath: optools-1
         imagePullPolicy: IfNotPresent
       # - name: optools-2
-      #   image: hazx/optools:2.1
+      #   image: hazx/optools:2.3
       #   env:
       #   - name: RUN_KEEP
       #     value: 'true'
