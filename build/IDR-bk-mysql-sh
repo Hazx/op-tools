@@ -39,9 +39,11 @@ if [[ $MYSQL_DB_R == "_ALL_" ]];then
             echo "[$(date +%Y%m%d-%H%M%S)] 正在备份库：${db_name_single}"
             mysqldump -h ${MYSQL_ADDR_R} -P ${MYSQL_PORT_R} -u${MYSQL_USER_R} -p"${MYSQL_PW_R}" -R ${db_name_single} > ${MYSQL_BK_DIR_R}/mysql__all__${date_tag}/${db_name_single}.sql 2>/dev/null
             if [ $? -ne 0 ]; then
+                sleep 30
                 rm -f ${MYSQL_BK_DIR_R}/mysql__all__${date_tag}/${db_name_single}.sql
                 mysqldump -h ${MYSQL_ADDR_R} -P ${MYSQL_PORT_R} -u${MYSQL_USER_R} -p"${MYSQL_PW_R}" -R ${db_name_single} > ${MYSQL_BK_DIR_R}/mysql__all__${date_tag}/${db_name_single}.sql 2>/dev/null
                 if [ $? -ne 0 ]; then
+                    sleep 30
                     rm -f ${MYSQL_BK_DIR_R}/mysql__all__${date_tag}/${db_name_single}.sql
                     mysqldump -h ${MYSQL_ADDR_R} -P ${MYSQL_PORT_R} -u${MYSQL_USER_R} -p"${MYSQL_PW_R}" -R ${db_name_single} > ${MYSQL_BK_DIR_R}/mysql__all__${date_tag}/${db_name_single}.sql 2>/dev/null
                     if [ $? -ne 0 ]; then
@@ -65,9 +67,11 @@ else
     echo "[$(date +%Y%m%d-%H%M%S)] 正在备份库：${MYSQL_DB_R}"
     mysqldump -h ${MYSQL_ADDR_R} -P ${MYSQL_PORT_R} -u${MYSQL_USER_R} -p"${MYSQL_PW_R}" -R ${MYSQL_DB_R} > ${MYSQL_BK_DIR_R}/mysql_${MYSQL_DB_R}_${date_tag}.sql 2>/dev/null
     if [ $? -ne 0 ]; then
+        sleep 30
         rm -f ${MYSQL_BK_DIR_R}/${MYSQL_DB_R}.sql
         mysqldump -h ${MYSQL_ADDR_R} -P ${MYSQL_PORT_R} -u${MYSQL_USER_R} -p"${MYSQL_PW_R}" -R ${MYSQL_DB_R} > ${MYSQL_BK_DIR_R}/mysql_${MYSQL_DB_R}_${date_tag}.sql 2>/dev/null
         if [ $? -ne 0 ]; then
+            sleep 30
             rm -f ${MYSQL_BK_DIR_R}/${MYSQL_DB_R}.sql
             mysqldump -h ${MYSQL_ADDR_R} -P ${MYSQL_PORT_R} -u${MYSQL_USER_R} -p"${MYSQL_PW_R}" -R ${MYSQL_DB_R} > ${MYSQL_BK_DIR_R}/mysql_${MYSQL_DB_R}_${date_tag}.sql 2>/dev/null
             if [ $? -ne 0 ]; then
@@ -91,7 +95,7 @@ if [[ $MYSQL_DB_R == "_ALL_" ]];then
     bk_num=$(find ${MYSQL_BK_DIR_R}/ -maxdepth 1 -type d -name "mysql__all__*" | wc -l)
     if [[ $bk_num -gt ${MYSQL_BK_RETAIN_R} ]];then
         echo "[$(date +%Y%m%d-%H%M%S)] 正在清理历史备份..."
-        find ${MYSQL_BK_DIR_R}/ -name "mysql__all__*" | sort -r | sed -e 1,${MYSQL_BK_RETAIN_R}d | xargs -I {} rm -rf {}
+        find ${MYSQL_BK_DIR_R}/ -maxdepth 1 -type d -name "mysql__all__*" | sort -r | sed -e 1,${MYSQL_BK_RETAIN_R}d | xargs -I {} rm -rf {}
     fi
 else
     bk_num=$(ls -Art mysql_${MYSQL_DB_R}_*.zip | wc -l)

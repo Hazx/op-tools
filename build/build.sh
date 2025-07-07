@@ -2,7 +2,7 @@
 
 docker_path=hazx
 docker_img=optools
-docker_tag=2.3
+docker_tag=2.4
 docker_base=ubuntu:jammy-20240911.1
 web_svc_img=hazx/hmengine-fe:1.7
 

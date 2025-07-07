@@ -93,7 +93,7 @@ Linux Crontab 定时任务。
 
 ## 打包镜像
 
-您可以直接使用已经打包好的镜像 `hazx/optools:2.3`（ARM64平台请使用镜像 `hazx/optools:2.3-arm`），若您有特殊需求也可在修改之后重新执行打包：
+您可以直接使用已经打包好的镜像 `hazx/optools:2.4`（ARM64平台请使用镜像 `hazx/optools:2.4-arm`），若您有特殊需求也可在修改之后重新执行打包：
 
 ```
 bash build.sh
